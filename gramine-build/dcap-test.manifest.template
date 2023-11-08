@@ -11,10 +11,9 @@ insecure__use_cmdline_argv = true
 insecure__allow_eventfd = true
 
 [loader.env]
-LD_LIBRARY_PATH = "/lib:/lib/x86_64-linux-gnu"
+LD_LIBRARY_PATH = "{{ libdir }}:{{ arch_libdir }}"
 MALLOC_ARENA_MAX = "1"
 RUST_LOG = { passthrough = true }
-RUST_BACKTRACE = { passthrough = true }
 all_proxy = { passthrough = true }
 i2p_proxy = { passthrough = true }
 
@@ -22,6 +21,11 @@ i2p_proxy = { passthrough = true }
 type = "chroot"
 path = "/lib"
 uri = "file:{{ libdir }}"
+
+[[fs.mounts]]
+type = "chroot"
+path = "/lib/x86_64-linux-gnu"
+uri = "file:{{ arch_libdir }}"
 
 [[fs.mounts]]
 type = "chroot"
@@ -44,7 +48,6 @@ debug = false
 nonpie_binary = true
 enclave_size = "2G"
 thread_num = 32
-max_threads = 128
 remote_attestation = "{{ ra_type }}"
 {% if ra_type == "epid" %}
 ra_client_spid = "{{ ra_client_spid }}"
@@ -54,6 +57,7 @@ ra_client_linkable = {{ 'true' if ra_client_linkable == '1' else 'false' }}
 trusted_files = [
   "file:{{ libos }}",
   "file:{{ libdir }}",
+  "file:{{ arch_libdir }}",
   "file:dcap-test",
 ]
 
