@@ -1,39 +1,17 @@
 use std::ffi::CStr;
-use std::{fs, time};
+use std::time;
 
 use intel_tee_quote_verification_sys as qvl_sys;
 use intel_tee_quote_verification_rs as qvl;
 use intel_tee_quote_verification_rs::{QuoteCollateral as QVLQuoteCollateral};
 
-use scale_codec::{Encode, Decode};
-use scale_info::TypeInfo;
-
-#[derive(Encode, Decode, TypeInfo, Clone, Debug)]
-pub struct QuoteCollateral {
-    pub major_version: u16,
-    pub minor_version: u16,
-    pub tee_type: u32,
-    pub pck_crl_issuer_chain: String,
-    pub root_ca_crl: String,
-    pub pck_crl: String,
-    pub tcb_info_issuer_chain: String,
-    pub tcb_info: String,
-    pub tcb_info_signature: Vec<u8>,
-    pub qe_identity_issuer_chain: String,
-    pub qe_identity: String,
-    pub qe_identity_signature: Vec<u8>,
-}
-
-const CONTENT_FOR_REPORT: &str = "Hello, world!";
-
 fn main() {
     println!("Generating DCAP quote...");
 
-    fs::write("/dev/attestation/user_report_data", &CONTENT_FOR_REPORT).expect("Write user report data error");
-    let quote = fs::read("/dev/attestation/quote").expect("Create quote error");
+    let quote = include_bytes!("../res/quote").to_vec();
 
-    // println!("Quote hex:");
-    // println!("0x{}", hex::encode(&quote));
+    println!("Quote hex:");
+    println!("0x{}", hex::encode(&quote));
 
     println!("Fetching DCAP quote collateral...");
 
@@ -44,52 +22,52 @@ fn main() {
 
     let major_version = qvl_quote_collateral.major_version;
     let minor_version = qvl_quote_collateral.minor_version;
-    // println!("Collateral Version:");
-    // println!("{}.{}", major_version, minor_version);
+    println!("Collateral Version:");
+    println!("{}.{}", major_version, minor_version);
 
     let tee_type = qvl_quote_collateral.tee_type;
-    // println!("Collateral TEE type:");
-    // println!("{}", tee_type);
+    println!("Collateral TEE type:");
+    println!("{}", tee_type);
 
     let pck_crl_issuer_chain = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.pck_crl_issuer_chain.as_ptr()) };
         let str_slice: &str = c_str.to_str().expect("Collateral PCK CRL issuer chain should an UTF-8 string");
         str_slice.to_owned()
     };
-    // println!("Collateral PCK CRL issuer chain size:");
-    // println!("{}", qvl_quote_collateral.pck_crl_issuer_chain.len());
-    // println!("Collateral PCK CRL issuer chain data:");
-    // println!("{}", pck_crl_issuer_chain);
+    println!("Collateral PCK CRL issuer chain size:");
+    println!("{}", qvl_quote_collateral.pck_crl_issuer_chain.len());
+    println!("Collateral PCK CRL issuer chain data:");
+    println!("{}", pck_crl_issuer_chain);
 
     let root_ca_crl = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.root_ca_crl.as_ptr()) };
         let str_slice: &str = c_str.to_str().expect("ROOT CA CRL should an UTF-8 string");
         str_slice.to_owned()
     };
-    // println!("Collateral ROOT CA CRL size:");
-    // println!("{}", qvl_quote_collateral.root_ca_crl.len());
-    // println!("Collateral ROOT CA CRL data:");
-    // println!("0x{}", hex::encode(&root_ca_crl));
+    println!("Collateral ROOT CA CRL size:");
+    println!("{}", qvl_quote_collateral.root_ca_crl.len());
+    println!("Collateral ROOT CA CRL data:");
+    println!("0x{}", hex::encode(&root_ca_crl));
 
     let pck_crl = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.pck_crl.as_ptr()) };
         let str_slice: &str = c_str.to_str().expect("PCK CRL should an UTF-8 string");
         str_slice.to_owned()
     };
-    // println!("Collateral PCK CRL size:");
-    // println!("{}", qvl_quote_collateral.pck_crl.len());
-    // println!("Collateral PCK CRL data:");
-    // println!("0x{}", hex::encode(&pck_crl));
+    println!("Collateral PCK CRL size:");
+    println!("{}", qvl_quote_collateral.pck_crl.len());
+    println!("Collateral PCK CRL data:");
+    println!("0x{}", hex::encode(&pck_crl));
 
     let tcb_info_issuer_chain = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.tcb_info_issuer_chain.as_ptr()) };
         let str_slice: &str = c_str.to_str().expect("TCB Info issuer should an UTF-8 string");
         str_slice.to_owned()
     };
-    // println!("Collateral TCB info issuer chain size:");
-    // println!("{}", qvl_quote_collateral.tcb_info_issuer_chain.len());
-    // println!("Collateral TCB info issuer chain data:");
-    // println!("{}", tcb_info_issuer_chain);
+    println!("Collateral TCB info issuer chain size:");
+    println!("{}", qvl_quote_collateral.tcb_info_issuer_chain.len());
+    println!("Collateral TCB info issuer chain data:");
+    println!("{}", tcb_info_issuer_chain);
 
     let raw_tcb_info = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.tcb_info.as_ptr()) };
@@ -100,22 +78,22 @@ fn main() {
     let tcb_info = tcb_info_json["tcbInfo"].to_string();
     let tcb_info_signature = tcb_info_json["signature"].as_str().expect("TCB Info signature should a hex string");
     let tcb_info_signature = hex::decode(tcb_info_signature).expect("TCB Info signature should a hex string");
-    // println!("Collateral TCB info size:");
-    // println!("{}", qvl_quote_collateral.tcb_info.len());
-    // println!("Collateral TCB info data:");
-    // println!("{}", raw_tcb_info);
-    // println!("{tcb_info}");
-    // println!("{}", hex::encode(&tcb_info_signature));
+    println!("Collateral TCB info size:");
+    println!("{}", qvl_quote_collateral.tcb_info.len());
+    println!("Collateral TCB info data:");
+    println!("{}", raw_tcb_info);
+    println!("{tcb_info}");
+    println!("{}", hex::encode(&tcb_info_signature));
 
     let qe_identity_issuer_chain = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.qe_identity_issuer_chain.as_ptr()) };
         let str_slice: &str = c_str.to_str().expect("QE Identity issuer chain should an UTF-8 string");
         str_slice.to_owned()
     };
-    // println!("Collateral QE identity issuer chain size:");
-    // println!("{}", qvl_quote_collateral.qe_identity_issuer_chain.len());
-    // println!("Collateral QE identity issuer chain data:");
-    // println!("{}", qe_identity_issuer_chain);
+    println!("Collateral QE identity issuer chain size:");
+    println!("{}", qvl_quote_collateral.qe_identity_issuer_chain.len());
+    println!("Collateral QE identity issuer chain data:");
+    println!("{}", qe_identity_issuer_chain);
 
     let raw_qe_identity = {
         let c_str: &CStr = unsafe { CStr::from_ptr(qvl_quote_collateral.qe_identity.as_ptr()) };
@@ -126,77 +104,12 @@ fn main() {
     let qe_identity = qe_identity_json["enclaveIdentity"].to_string();
     let qe_identity_signature = qe_identity_json["signature"].as_str().expect("QE Identity signature should a hex string");
     let qe_identity_signature = hex::decode(qe_identity_signature).expect("QE Identity signature should a hex string");
-    // println!("Collateral QE Identity size:");
-    // println!("{}", qvl_quote_collateral.qe_identity.len());
-    // println!("Collateral QE identity data:");
-    // println!("{}", raw_qe_identity);
-    // println!("{qe_identity}");
-    // println!("{}", hex::encode(&qe_identity_signature));
-
-    fs::create_dir_all("/data/storage_files/quote_collateral_artifacts").unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/version",
-        format!("{major_version}.{minor_version}")
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/tee_type",
-        format!("{tee_type}")
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/pck_crl_issuer_chain",
-        &pck_crl_issuer_chain
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/root_ca_crl",
-        &root_ca_crl
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/pck_crl",
-        &pck_crl
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/tcb_info_issuer_chain",
-        &tcb_info_issuer_chain
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/tcb_info",
-        &tcb_info
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/qe_identity_issuer_chain",
-        &qe_identity_issuer_chain
-    ).unwrap();
-    fs::write(
-        "/data/storage_files/quote_collateral_artifacts/qe_identity",
-        &qe_identity
-    ).unwrap();
-
-    let quote_collateral = QuoteCollateral {
-        major_version,
-        minor_version,
-        tee_type,
-        pck_crl_issuer_chain,
-        root_ca_crl,
-        pck_crl,
-        tcb_info_issuer_chain,
-        tcb_info,
-        tcb_info_signature,
-        qe_identity_issuer_chain,
-        qe_identity,
-        qe_identity_signature,
-    };
-    let encoded = quote_collateral.encode();
-    // println!("0x{}", hex::encode(&encoded));
-
-    fs::write(
-        "/data/storage_files/quote_collateral",
-        &encoded
-    ).unwrap();
-
-    fs::write(
-        "/data/storage_files/quote",
-        &quote
-    ).unwrap();
+    println!("Collateral QE Identity size:");
+    println!("{}", qvl_quote_collateral.qe_identity.len());
+    println!("Collateral QE identity data:");
+    println!("{}", raw_qe_identity);
+    println!("{qe_identity}");
+    println!("{}", hex::encode(&qe_identity_signature));
 
     println!("Verifying quote using Intel Quote Verification Library...");
     qvl_quote_verification(&quote, &qvl_quote_collateral);
