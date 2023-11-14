@@ -211,6 +211,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "const-oid"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28c122c3980598d243d63d9a704629a2d748d101f278052ff068be5a4423ab6f"
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +244,7 @@ version = "0.0.1"
 dependencies = [
  "anyhow",
  "asn1_der",
+ "const-oid",
  "hex",
  "intel-tee-quote-verification-rs",
  "intel-tee-quote-verification-sys",

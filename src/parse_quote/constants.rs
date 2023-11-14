@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-
 pub const TEE_TYPE_SGX: u32 = 0x00000000;
 pub const TEE_TYPE_TDX: u32 = 0x00000081;
 
@@ -60,12 +59,19 @@ pub const QUOTE_MIN_BYTE_LEN: usize =
         + AUTH_DATA_SIZE_BYTE_LEN
         + AUTH_DATA_MIN_BYTE_LEN;
 
-pub const SGX_EXTENSION: &str = "1.2.840.113741.1.13.1";
-pub const TCB: &str = "1.2.840.113741.1.13.1.2";
-pub const PPID: &str = "1.2.840.113741.1.13.1.1";
-pub const PCEID: &str = "1.2.840.113741.1.13.1.3";
-pub const FMSPC: &str = "1.2.840.113741.1.13.1.4";
-pub const SGX_TYPE: &str = "1.2.840.113741.1.13.1.5"; // ASN1 Enumerated
-pub const PLATFORM_INSTANCE_ID: &str = "1.2.840.113741.1.13.1.6";
-pub const CONFIGURATION: &str = "1.2.840.113741.1.13.1.7";
-pub const FMSPC_NAME: &[u8] = &[42u8, 134, 72, 134, 248, 77, 1, 13, 1, 4];
+pub mod oids {
+    use const_oid::ObjectIdentifier as OID;
+
+    const fn oid(s: &str) -> OID {
+        OID::new_unwrap(s)
+    }
+
+    pub const SGX_EXTENSION: OID = oid("1.2.840.113741.1.13.1");
+    pub const TCB: OID = oid("1.2.840.113741.1.13.1.2");
+    pub const PPID: OID = oid("1.2.840.113741.1.13.1.1");
+    pub const PCEID: OID = oid("1.2.840.113741.1.13.1.3");
+    pub const FMSPC: OID = oid("1.2.840.113741.1.13.1.4");
+    pub const SGX_TYPE: OID = oid("1.2.840.113741.1.13.1.5"); // ASN1 Enumerated
+    pub const PLATFORM_INSTANCE_ID: OID = oid("1.2.840.113741.1.13.1.6");
+    pub const CONFIGURATION: OID = oid("1.2.840.113741.1.13.1.7");
+}

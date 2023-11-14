@@ -9,6 +9,8 @@ use asn1_der::{
 use scale::{Decode, Input};
 use x509_parser::extensions::X509Extension;
 
+use self::constants::oids;
+
 mod constants;
 
 #[derive(Debug)]
@@ -196,14 +198,14 @@ impl Quote {
         let sgx_ext = qe_cert_der
             .extensions()
             .iter()
-            .find(|ext| ext.oid.to_id_string() == constants::SGX_EXTENSION)
+            .find(|ext| ext.oid.as_bytes() == oids::SGX_EXTENSION.as_bytes())
             .ok_or_else(|| anyhow!("Missing SGX extension"))?;
         f(sgx_ext)
     }
 
     pub fn fmspc(&self) -> anyhow::Result<Vec<u8>> {
         self.with_sgx_ext(|sgx_ext| {
-            find_extension(constants::FMSPC_NAME, sgx_ext).or(Err(anyhow!("Missing FMSPC")))
+            find_extension(oids::FMSPC.as_bytes(), sgx_ext).or(Err(anyhow!("Missing FMSPC")))
         })
     }
 }
