@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 pub const TEE_TYPE_SGX: u32 = 0x00000000;
 pub const TEE_TYPE_TDX: u32 = 0x00000081;
 

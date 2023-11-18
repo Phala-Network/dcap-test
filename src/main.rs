@@ -42,8 +42,8 @@ impl From<QuoteCollateral> for qvl::QuoteCollateral {
     }
 }
 
-fn get_header(resposne: &reqwest::Response, name: &str) -> anyhow::Result<String> {
-    let value = resposne
+fn get_header(response: &reqwest::Response, name: &str) -> anyhow::Result<String> {
+    let value = response
         .headers()
         .get(name)
         .ok_or(anyhow!("Missing {name}"))?
@@ -61,12 +61,12 @@ async fn get_collateral(base_url: &str, mut quote: &[u8]) -> anyhow::Result<Quot
     let pck_crl_issuer_chain;
     let pck_crl;
     {
-        let resposne = client
+        let response = client
             .get(format!("{base_url}/pckcrl?ca=processor"))
             .send()
             .await?;
-        pck_crl_issuer_chain = get_header(&resposne, "SGX-PCK-CRL-Issuer-Chain")?;
-        pck_crl = resposne.text().await?;
+        pck_crl_issuer_chain = get_header(&response, "SGX-PCK-CRL-Issuer-Chain")?;
+        pck_crl = response.text().await?;
     };
     let root_ca_crl = client
         .get(format!("{base_url}/rootcacrl"))
@@ -88,9 +88,9 @@ async fn get_collateral(base_url: &str, mut quote: &[u8]) -> anyhow::Result<Quot
     let qe_identity_issuer_chain;
     let qe_identity;
     {
-        let resposne = client.get(format!("{base_url}/qe/identity")).send().await?;
-        qe_identity_issuer_chain = get_header(&resposne, "SGX-Enclave-Identity-Issuer-Chain")?;
-        qe_identity = resposne.text().await?;
+        let response = client.get(format!("{base_url}/qe/identity")).send().await?;
+        qe_identity_issuer_chain = get_header(&response, "SGX-Enclave-Identity-Issuer-Chain")?;
+        qe_identity = response.text().await?;
     };
     Ok(QuoteCollateral {
         pck_crl_issuer_chain: pck_crl_issuer_chain.into_bytes(),
