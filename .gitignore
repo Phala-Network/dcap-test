@@ -26,3 +26,5 @@ gramine-build/*.manifest.sgx
 gramine-build/*.manifest
 gramine-build/dcap-generation-test.o
 gramine-build/dcap-generation-test
+
+data
