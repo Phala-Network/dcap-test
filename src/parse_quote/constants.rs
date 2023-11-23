@@ -68,11 +68,13 @@ pub mod oids {
     }
 
     pub const SGX_EXTENSION: OID = oid("1.2.840.113741.1.13.1");
-    pub const TCB: OID = oid("1.2.840.113741.1.13.1.2");
     pub const PPID: OID = oid("1.2.840.113741.1.13.1.1");
+    pub const TCB: OID = oid("1.2.840.113741.1.13.1.2");
     pub const PCEID: OID = oid("1.2.840.113741.1.13.1.3");
     pub const FMSPC: OID = oid("1.2.840.113741.1.13.1.4");
     pub const SGX_TYPE: OID = oid("1.2.840.113741.1.13.1.5"); // ASN1 Enumerated
     pub const PLATFORM_INSTANCE_ID: OID = oid("1.2.840.113741.1.13.1.6");
     pub const CONFIGURATION: OID = oid("1.2.840.113741.1.13.1.7");
+    pub const PCESVN: OID = oid("1.2.840.113741.1.13.1.2.17");
+    pub const CPUSVN: OID = oid("1.2.840.113741.1.13.1.2.18");
 }

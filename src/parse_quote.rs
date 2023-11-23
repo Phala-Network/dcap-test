@@ -205,21 +205,44 @@ impl Quote {
 
     pub fn fmspc(&self) -> anyhow::Result<Vec<u8>> {
         self.with_sgx_ext(|sgx_ext| {
-            find_extension(oids::FMSPC.as_bytes(), sgx_ext).or(Err(anyhow!("Missing FMSPC")))
+            find_extension(&[oids::FMSPC.as_bytes()], sgx_ext.value)
+                .or(Err(anyhow!("Missing FMSPC")))
+        })
+    }
+
+    pub fn cpu_svn(&self) -> anyhow::Result<Vec<u8>> {
+        self.with_sgx_ext(|sgx_ext| {
+            find_extension(
+                &[oids::TCB.as_bytes(), oids::CPUSVN.as_bytes()],
+                sgx_ext.value,
+            )
+            .or(Err(anyhow!("Missing TCP")))
         })
     }
 }
 
-fn find_extension(oid: &[u8], sgx_ext: &X509Extension<'_>) -> anyhow::Result<Vec<u8>> {
-    let obj = DerObject::decode(&sgx_ext.value)?;
-    let seq = Sequence::load(obj)?;
+fn find_extension(path: &[&[u8]], raw: &[u8]) -> anyhow::Result<Vec<u8>> {
+    let obj = DerObject::decode(&raw)?;
+    let subobj = get_obj(path, obj)?;
+    Ok(subobj.value().to_vec())
+}
+
+fn get_obj<'a>(path: &[&[u8]], mut obj: DerObject<'a>) -> anyhow::Result<DerObject<'a>> {
+    for oid in path {
+        let seq = Sequence::load(obj)?;
+        obj = sub_obj(oid, seq)?;
+    }
+    Ok(obj)
+}
+
+fn sub_obj<'a>(oid: &[u8], seq: Sequence<'a>) -> anyhow::Result<DerObject<'a>> {
     for i in 0..seq.len() {
         let entry = seq.get(i)?;
         let entry = Sequence::load(entry)?;
         let name = entry.get(0)?;
         let value = entry.get(1)?;
         if name.value() == oid {
-            return Ok(value.value().to_vec());
+            return Ok(value);
         }
     }
     Err(anyhow!("Not Found"))
@@ -229,6 +252,7 @@ fn find_extension(oid: &[u8], sgx_ext: &X509Extension<'_>) -> anyhow::Result<Vec
 fn it_works() {
     let raw_quote = include_bytes!("../res/quote").to_vec();
     let quote = Quote::decode(&mut &raw_quote[..]).unwrap();
-    println!("{:#?}", quote);
+    // println!("{:#?}", quote);
     println!("{:#?}", quote.fmspc().unwrap());
+    println!("{:#?}", quote.cpu_svn().unwrap());
 }
